@@ -2,7 +2,7 @@ from django.template import Template, Context
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 
-from debug_toolbar.panels import DebugPanel
+from debug_toolbar.panels import Panel
 
 import operation_tracker
 
@@ -16,11 +16,12 @@ _NAV_SUBTITLE_TPL = u'''
 {% endfor %}
 '''
 
-class MongoDebugPanel(DebugPanel):
+class MongoDebugPanel(Panel):
     """Panel that shows information about MongoDB operations.
     """
     name = 'MongoDB'
     has_content = True
+    template = 'mongo-panel.html'
 
     def __init__(self, *args, **kwargs):
         super(MongoDebugPanel, self).__init__(*args, **kwargs)
@@ -32,10 +33,10 @@ class MongoDebugPanel(DebugPanel):
     def nav_title(self):
         return 'MongoDB'
 
+
     def nav_subtitle(self):
         fun = lambda x, y: (x, len(y), '%.2f' % sum(z['time'] for z in y))
         ctx = {'operations': [], 'count': 0, 'time': 0}
-
         if operation_tracker.queries:
             ctx['operations'].append(fun('read', operation_tracker.queries))
             ctx['count'] += len(operation_tracker.queries)
@@ -66,12 +67,12 @@ class MongoDebugPanel(DebugPanel):
     def url(self):
         return ''
 
-    def content(self):
-        context = self.context.copy()
+
+    def get_stats(self):
+        context = {}
         context['queries'] = operation_tracker.queries
         context['inserts'] = operation_tracker.inserts
         context['updates'] = operation_tracker.updates
         context['removes'] = operation_tracker.removes
-        return render_to_string('mongo-panel.html', context)
-
+        return context
 
