@@ -13,7 +13,6 @@ setup(
     include_package_data=True,
     zip_safe=False,
     setup_requires=[
-        'versiontools >= 1.6',
     ],
     classifiers=[
         'Environment :: Web Environment',
